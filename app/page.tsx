@@ -35,18 +35,30 @@ import {
 } from "lucide-react";
 
 import { useChatStore } from "@/store/chatStore";
+import { PeerConnection } from "@/lib/peerConnection";
 
 export default function GroupChat() {
-  const { messages, peerConnection, addMessage, loadMessages } = useChatStore();
+  const { messages, addMessage, loadMessages } = useChatStore();
   const [input, setInput] = useState("");
+  const [peerConn, setPeerConn] = useState<PeerConnection | null>(null);
 
   useEffect(() => {
+    const pc = new PeerConnection({
+      initiator: false,
+      signalingServerUrl: "ws://192.168.1.41:500",
+      onData: (data) => console.log("data", data),
+      onConnect: () => console.log("Connected to peer"),
+    });
+
+    setPeerConn(pc);
+    
     loadMessages();
   }, []);
 
+
   const handleSend = async () => {
     if (!input.trim()) return;
-    peerConnection?.send(input);
+    peerConn?.send(input);
     await addMessage("me", input);
     setInput("");
   };
@@ -67,14 +79,16 @@ export default function GroupChat() {
           className="border flex-1 p-2 rounded"
           placeholder="Type message..."
         />
-        <button onClick={handleSend} className="bg-blue-500 text-white px-3 rounded">
+        <button
+          onClick={handleSend}
+          className="bg-blue-500 text-white px-3 rounded"
+        >
           Send
         </button>
       </div>
     </div>
   );
 }
-
 
 function RoomItem({
   name,
