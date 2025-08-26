@@ -37,7 +37,7 @@ import {
 import { useChatStore } from "@/store/chatStore";
 
 export default function GroupChat() {
-  const { messages, addMessage, loadMessages } = useChatStore();
+  const { messages, peerConnection, addMessage, loadMessages } = useChatStore();
   const [input, setInput] = useState("");
 
   useEffect(() => {
@@ -46,6 +46,7 @@ export default function GroupChat() {
 
   const handleSend = async () => {
     if (!input.trim()) return;
+    peerConnection?.send(input);
     await addMessage("me", input);
     setInput("");
   };
